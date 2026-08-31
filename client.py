@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 import pandas as pd
@@ -13,6 +14,7 @@ intervals = {
     "4h": 4 * 60 * 60 * 1000,
     "1d": 24 * 60 * 60 * 1000,
 }
+
 
 def get_candles(coin="BTC", interval="1m"):
     # fetch the data from hyperliquid
@@ -75,10 +77,10 @@ def get_candles(coin="BTC", interval="1m"):
     return df[["datetime", "open", "high", "low", "close", "volume", "trades"]]
 
 
-def save_in_csv(df, symbol, tf):
+def save_in_csv(df, symbol, tf, out_filename=None):
     # save the downloaded candles into a csv
     # if the csv already exists, merely add to it
-    filename = f"{symbol}_{tf}.csv"
+    filename = out_filename if out_filename else f"{symbol}_{tf}.csv"
 
     if os.path.exists(filename):
         existing = pd.read_csv(filename, comment="#")
@@ -102,11 +104,20 @@ def save_in_csv(df, symbol, tf):
     print("Saved to", filename)
 
 
-if __name__ == "__main__":
-    symbol = "BTC"
-    tf = "1m"
+def main():
+    parser = argparse.ArgumentParser(description="Fetch historical candles from Hyperliquid")
+    parser.add_argument("--symbol", default="BTC", help="Asset ticker symbol (e.g. BTC, ETH)")
+    parser.add_argument("--tf", default="1m", choices=list(intervals.keys()), help="Candle timeframe interval")
+    parser.add_argument("--out", default=None, help="Custom output CSV file path")
 
-    df = get_candles(symbol, tf)
+    args = parser.parse_args()
+
+    df = get_candles(args.symbol, args.tf)
     print("fetched", len(df))
 
-    save_in_csv(df, symbol, tf)
+    if not df.empty:
+        save_in_csv(df, args.symbol, args.tf, out_filename=args.out)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,12 @@
 .offline-markdown-preview
+BTC_1m.csv
+btc_book.csv
+capture_orderbook.py
+fit_liquidity_model.py
+plot_orderbook.py
+spread_over_time.png
+trades.csv
+strategy.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
